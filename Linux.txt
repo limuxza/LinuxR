@@ -1,0 +1,155 @@
+local Linux = {}
+
+function Linux.Create(config)
+    local player = game.Players.LocalPlayer
+    local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+    gui.Name = config.Name or "LinuxUI"
+    gui.ResetOnSpawn = false
+    gui.Parent = player.PlayerGui
+
+    local main = Instance.new("Frame", gui)
+    main.Size = UDim2.new(0, 250, 0, 350)
+    main.Position = UDim2.new(0.5, -125, 0.5, -175)
+    main.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    main.BorderSizePixel = 0
+    main.Active = true
+    main.Draggable = true
+
+    local corner = Instance.new("UICorner", main)
+    corner.CornerRadius = UDim.new(0, 8)
+
+    local stroke = Instance.new("UIStroke", main)
+    stroke.Color = Color3.fromRGB(60, 60, 60)
+    stroke.Thickness = 1
+
+    local gradient = Instance.new("UIGradient", main)
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 100)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 50, 50))
+    })
+    gradient.Rotation = 45
+
+    local title = Instance.new("TextLabel", main)
+    title.Size = UDim2.new(1, 0, 0, 40)
+    title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    title.Text = config.Name or "LinuxUI"
+    title.TextColor3 = Color3.fromRGB(200, 200, 200)
+    title.TextSize = 20
+    title.Font = Enum.Font.GothamBold
+
+    local titleGradient = Instance.new("UIGradient", title)
+    titleGradient.Color = gradient.Color
+    titleGradient.Rotation = 45
+
+    local container = Instance.new("ScrollingFrame", main)
+    container.Position = UDim2.new(0, 0, 0, 40)
+    container.Size = UDim2.new(1, 0, 1, -40)
+    container.BackgroundTransparency = 1
+    container.BorderSizePixel = 0
+    container.ScrollBarThickness = 6
+    container.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    container.CanvasSize = UDim2.new(0, 0, 0, 0)
+
+    local layout = Instance.new("UIListLayout", container)
+    layout.Padding = UDim.new(0, 12)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+    layout.VerticalAlignment = Enum.VerticalAlignment.Top
+
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        container.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 12)
+    end)
+
+    local UI = {}
+
+    function UI.Toggle(data)
+        local Toggle = Instance.new("Frame", container)
+        Toggle.Size = UDim2.new(0.85, 0, 0, 40)
+        Toggle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        Toggle.BorderSizePixel = 0
+
+        local Corner = Instance.new("UICorner", Toggle)
+        Corner.CornerRadius = UDim.new(0, 6)
+
+        local Gradient = Instance.new("UIGradient")
+        Gradient.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.fromRGB(50, 50, 100)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(150, 50, 50))
+        })
+        Gradient.Rotation = 45
+        Gradient.Parent = Toggle
+
+        local Label = Instance.new("TextLabel", Toggle)
+        Label.Size = UDim2.new(0.8, 0, 1, 0)
+        Label.Position = UDim2.new(0, 10, 0, 0)
+        Label.BackgroundTransparency = 1
+        Label.Font = Enum.Font.Gotham
+        Label.Text = data.Name or "Toggle"
+        Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+        Label.TextSize = 16
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+
+        local ToggleBox = Instance.new("Frame", Toggle)
+        ToggleBox.Size = UDim2.new(0, 40, 0, 20)
+        ToggleBox.Position = UDim2.new(1, -50, 0.5, -10)
+        ToggleBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        ToggleBox.BorderSizePixel = 0
+
+        local BoxCorner = Instance.new("UICorner", ToggleBox)
+        BoxCorner.CornerRadius = UDim.new(1, 0)
+
+        local Fill = Instance.new("Frame", ToggleBox)
+        Fill.Size = data.Default and UDim2.new(1, 0, 1, 0) or UDim2.new(0, 0, 1, 0)
+        Fill.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Fill.BorderSizePixel = 0
+
+        local FillCorner = Instance.new("UICorner", Fill)
+        FillCorner.CornerRadius = UDim.new(1, 0)
+
+        local FillGradient = Instance.new("UIGradient", Fill)
+        FillGradient.Color = Gradient.Color
+        FillGradient.Rotation = 45
+
+        local Knob = Instance.new("Frame", ToggleBox)
+        Knob.Size = UDim2.new(0, 16, 0, 16)
+        Knob.Position = data.Default and UDim2.new(1, -18, 0, 2) or UDim2.new(0, 2, 0, 2)
+        Knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        Knob.BorderSizePixel = 0
+
+        local KnobCorner = Instance.new("UICorner", Knob)
+        KnobCorner.CornerRadius = UDim.new(1, 0)
+
+        local state = data.Default or false
+
+        local function update()
+            local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad)
+            game:GetService("TweenService"):Create(Fill, tweenInfo, {
+                Size = state and UDim2.new(1, 0, 1, 0) or UDim2.new(0, 0, 1, 0)
+            }):Play()
+            game:GetService("TweenService"):Create(Knob, tweenInfo, {
+                Position = state and UDim2.new(1, -18, 0, 2) or UDim2.new(0, 2, 0, 2)
+            }):Play()
+        end
+
+        update()
+        if data.Callback then
+            data.Callback(state)
+        end
+
+        Toggle.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                state = not state
+                update()
+                if data.Callback then
+                    data.Callback(state)
+                end
+            end
+        end)
+
+        return Toggle
+    end
+
+    return UI
+end
+
+return Linux
